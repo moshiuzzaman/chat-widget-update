@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <title>Chatbox</title>
+  </head>
+  <body>
+    <button id="login">login</button>
+    <button id="logout">logout</button>
+    <div id="bs__root" class="cems__container"></div>
+    <div class="cems__chatbox">
+      <div class="cems__chatbox__support">
+        <div id="cems__chatbox__chatlists">
+          <div id="cems__chatlist__header">
+            <h3 id="cems__chatlist__header__text">Chats</h3>
+          </div>
+          <div id="cems__all__chatlist">
+            <div class="cems__chat__list">
+              <div class="cems__friend__icon">
+                <p>F</p>
+              </div>
+              <div class="cems__chatlist__content">
+                <h4 class="cems__chatlist__friendName">Friend's Name</h4>
+              </div>
+            </div>
+          </div>
+          <div class="cems__chatbox__chatlist__footer">
+            <div class="cems__chatlist__footer__button" onclick="backToChatList()">
+              <img class="chatlist__footer__chatIcon" src="https://img.icons8.com/ios/100/000000/communication.png" />
+              <div id="unreadMessageCount">
+                <p id="unreadMessageCountP">1</p>
+              </div>
+              <p>Chats</p>
+            </div>
+            <div class="cems__chatlist__footer__button" onclick="gotoUsers()">
+              <img class="chatlist__footer__userIcon" src="https://img.icons8.com/ios/50/000000/user.png" />
+              <p>Users</p>
+            </div>
+          </div>
+        </div>
+        <div id="cems__chatbox__chatting" class="cems__hide__section">
+          <div class="cems__chatbox__header">
+            <div id="cems__chatbox_backButton--header" onclick="backToChatList()">
+              <img src="https://img.icons8.com/ios-filled/100/000000/left.png" />
+            </div>
+
+            <div class="cems__friend__icon">
+              <p>F</p>
+            </div>
+            <div class="cems__chatbox__content--header">
+              <h4 class="cems__chatbox__heading--header">Friend's Name</h4>
+            </div>
+          </div>
+          <div id="cems__chatbox__messages">
+            <div>
+              <div class="cems__messages__item cems__messages__item--visitor">Can you let me talk to the support?</div>
+              <div class="cems__messages__item cems__messages__item--operator">Sure!</div>
+            </div>
+          </div>
+          <div class="cems__chatbox__footer">
+            <img
+              src="https://img.icons8.com/external-kmg-design-outline-color-kmg-design/64/000000/external-attachment-user-interface-kmg-design-outline-color-kmg-design.png"
+            />
+            <input type="text" placeholder="Write a message..." />
+            <button class="cems__chatbox__send--footer">Send</button>
+          </div>
+        </div>
+      </div>
+      <div class="cems__chatbox__button cems__hide__section" id="cems__chatbox__button">
+        <button>button</button>
+      </div>
+    </div>
+    <div id="bs__root"></div>
+    <div id="cems__log" hidden></div>
+    <!-- <button id="cems__myBtn">Open Modal</button> -->
+    <div id="cems__myModal" class="cems__modal">
+      <div id="cems__callsection">
+        <div id="cems__call__content">
+          <h3 class="cems__calltype">Outgoing Call</h3>
+          <div class="cems__callImage">
+            <img class="cems__callImage" src="https://img.icons8.com/ios/50/000000/user-male-circle.png" />
+            <h4>Calling Shozon</h4>
+            <div class="cems__callButtons">
+              <button class="cems__reciveBtn">Recive</button>
+              <button class="cems__cancleBtn">Cancle</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/moshiuzzaman/CDN@master/agora-rtm-sdk-1.4.4.js"></script>
+    <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.8.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="./assets/js/demoData.js"></script>
+    <script src="./assets/js/agora.js"></script>
+    <script src="./assets/js/script.js"></script>
+    <script src="./assets/js/Chatbox.js"></script>
+    <script>
+      let email = "user1@gmail.com";
+      let pass = "123456";
+      let rington =
+        "https://pl3dxz-a.akamaihd.net/downloads/ringtones/files/mp3/18862-download-dj-best-baby-laughing-remix-mobile-ringtone-ringtone-funny-r-53413.mp3";
+      let callerTune = "https://audio.jukehost.co.uk/2OdnBtHkBRWn76r6YiNesNpb5PTNEg5b";
+      let tokenUrl = "https://agora-token-generator-bs23.herokuapp.com";
+      // let appId = "32ce8b468e644fb6986400e62b7a6486";
+      // let appCertificate = "ade354e7ecc844cba44732b2c1b699b6";
+      let appId = "615561036b0247abb29ba57b6955e1e0";
+      let appCertificate = "19b3864a40d04e949611b93c8e337257";
+      // paramiter formate (email, pass, appId, rington, callerTune, tokenUrl, appCertificate)
+      bsChatInit(email, pass, appId, tokenUrl, appCertificate, rington, callerTune);
+      document.getElementById("login").addEventListener("click", () => {
+        bsChatInit(email, pass, appId, tokenUrl, appCertificate, rington, callerTune);
+      });
+      document.getElementById("logout").addEventListener("click", () => {
+        logoutFromAgora();
+      });
+    </script>
+  </body>
+</html>

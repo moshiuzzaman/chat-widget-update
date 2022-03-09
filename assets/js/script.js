@@ -27,16 +27,16 @@ let chatsToggle = (data) => {
   if (lastMessageDetails != undefined) {
     data.messages.push(lastMessageDetails);
     if (lastMessageDetails.messageType == 2) {
-      if (lastMessageDetails.text.substring(0, 27) === "FiLe-https://tradazine.com/") {
-        lastMessage = `You : Send a file`;
-      } else {
+      if (lastMessageDetails.type === "call" || lastMessageDetails.type === "TEXT") {
         lastMessage = `You : ${lastMessageDetails.text}`;
+      } else {
+        lastMessage = `You : Send a file `;
       }
     } else {
-      if (lastMessageDetails.type !== "TEXT") {
-        lastMessage = ` Send a file`;
-      } else {
+      if (lastMessageDetails.type === "call" || lastMessageDetails.type === "TEXT") {
         lastMessage = lastMessageDetails.text;
+      } else {
+        lastMessage = ` Send a file`;
       }
     }
   }
@@ -273,7 +273,7 @@ let createFileMessageOutput = async (mediaMessage, time, type) => {
       });
 
     document.getElementById("sendMessageBtn").disabled = false;
-    document.getElementById("sendMessageBtn").innerHTML = '<img src="https://img.icons8.com/material/96/03a9f4/filled-sent.png">';
+    document.getElementById("sendMessageBtn").innerHTML = '<img src="https://img.icons8.com/fluency-systems-regular/96/60A5FA/sent.png">';
   });
 };
 let createTextMessageOutput = (message, time, type) => {
@@ -326,6 +326,7 @@ let sendFileMessage = async (id, message = null) => {
   createFileMessageOutput(mediaMessage, currentDateTime, isImage ? "IMAGE" : "FILE");
 };
 let sendMessage = async (id, message = null) => {
+  console.log(message);
   id = clickFriendId;
   let currentDateTime = getCurrentDateTime();
   console.log(message);
@@ -391,7 +392,9 @@ let filesend = () => {
 };
 let chatListDataStore = (message, id, name, type) => {
   console.log(message);
-
+  if (message.type === "call" || message.type === "TEXT") {
+    message.messageType = message.type;
+  }
   let messageType;
   if (type == "sent") {
     messageType = 2;

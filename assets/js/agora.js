@@ -138,7 +138,7 @@ class agoraFuntionality {
     this.rtmClient.on("MessageFromPeer", async function (message, peerId, proper) {
       let withOutUnreadMessageId = unreadMessageId.filter((id) => id != peerId);
       unreadMessageId = [...withOutUnreadMessageId, peerId];
-
+      console.log(withOutUnreadMessageId, unreadMessageId);
       message.messageType !== "call" && reciveMessageStoreAndOutput(message, peerId);
       chatbox.unreadMessageCountDisplay();
       chatbox.inChatList = true;
@@ -166,7 +166,14 @@ class agoraFuntionality {
     this.sections.getCallingType = document.getElementById("callingType");
     this.status = "busy";
     this.sections.getModalSection.style.display = "flex";
-    sendMessage(calleeId, { text: `You gave ${calleeName} a ${type} call `, type: "call" });
+    sendMessage(calleeId, {
+      text: `You gave ${calleeName} a ${type} call `,
+      type: "call",
+      time: getCurrentDateTime(),
+      mediaUrl: undefined,
+      mediaId: undefined,
+      mediaName: undefined,
+    });
     this.rtcToken = await this.createAgoraRtcToken(1);
     this.joinReciveCallReciver(this.calltype);
   };
@@ -218,13 +225,13 @@ class agoraFuntionality {
       this.rtcToken = await this.createAgoraRtcToken(2);
       this.calltype = remoteInvitation._content.toLowerCase();
       this.caller = friendList.find((f) => f.chat_uid === remoteInvitation.callerId);
-      incomingCallOutput(this.caller.name, this.calltype);
+      incomingCallOutput(this.caller.name, this.calltype, remoteInvitation.callerId);
       this.playRington();
       this.sections.getCallingType = document.getElementById("callingType");
       this.status = "busy";
       this.sections.getModalSection.style.display = "flex";
       this.peerEvents();
-      reciveMessageStoreAndOutput({ text: `${this.caller.name} called You`, type: "call" }, remoteInvitation.callerId);
+      reciveMessageStoreAndOutput({ text: `${this.caller.name} called You`, messageType: "call" }, remoteInvitation.callerId);
       this.joinReciveCallReciver(this.calltype);
     });
   }
@@ -242,11 +249,11 @@ class agoraFuntionality {
       this.hidecall(`${this.caller.name} canceled the call`);
     });
     this.remoteInvitation.on("RemoteInvitationRefused", (r) => {
-      // this.hidecall();
+      this.hidecall();
       console.log("RemoteInvitationRefused " + r);
     });
     this.remoteInvitation.on("RemoteInvitationFailure", (r) => {
-      // this.hidecall(r);
+      this.hidecall(r);
     });
   };
   cancelIncomingCall() {
@@ -409,7 +416,10 @@ let createRecivedMessageOutput = (message, peerId) => {
   let createTimeOutput = document.createElement("div");
   createTimeOutput.className = "cems__messages__time-visitor";
   createTimeOutput.innerHTML = `${message.time}`;
-  if (message.messageType !== "TEXT") {
+  if (message.messageType === "TEXT" || message.messageType === "call") {
+    createMessageOutput.className = "cems__messages__item cems__messages__item--visitor";
+    createMessageOutput.innerHTML = `${message.text}`;
+  } else {
     let fileLink = message.mediaUrl;
     let fileName = message.mediaName;
 
@@ -425,9 +435,6 @@ let createRecivedMessageOutput = (message, peerId) => {
           <a href="${fileLink}" download target="_blank">${fileName}</a>
       </a>`;
     }
-  } else {
-    createMessageOutput.className = "cems__messages__item cems__messages__item--visitor";
-    createMessageOutput.innerHTML = `${message.text}`;
   }
   let className = peerId;
   let isClass = document.getElementsByClassName(`cems__messageFor${className}`)[0];
@@ -541,8 +548,9 @@ let outgoinCallOutput = (type) => {
   `;
 };
 
-let incomingCallOutput = (name, type) => {
-  console.log(type);
+let incomingCallOutput = (name, type, peerId) => {
+  let withOutUnreadMessageId = unreadMessageId.filter((id) => id != peerId);
+  unreadMessageId = [...withOutUnreadMessageId, peerId];
   calleeName = name;
   let output = `
   <div id="cems__callsection">
@@ -579,16 +587,17 @@ let storeMessage = (message, peerId) => {
 };
 let reciveMessageStoreAndOutput = async (message, peerId) => {
   let currentDateTime = getCurrentDateTime();
-  if (message.messageType === "TEXT") {
+  if (message.messageType === "TEXT" || message.messageType === "call") {
     message = message;
+    message.messageType = message.messageType;
     message.time = currentDateTime;
     storeMessage(message, peerId);
   } else {
     let blob = await agoraFunction.reciveFileControl(message.mediaId);
     await agoraFunction.blobToImage(blob, async (file) => {
       message = {
-        text: "",
         messageType: message.messageType,
+        text: "",
         time: currentDateTime,
         mediaId: message.mediaId,
         mediaUrl: file.src,
